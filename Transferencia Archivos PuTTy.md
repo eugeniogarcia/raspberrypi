@@ -4,7 +4,7 @@ Una vez se abra la aplicación, en la consola, escribir:
 
 open 192.168.1.130
 
-Comandos:  
+# Comandos:  
 
 lpwd: en que directorio de la maquina local estamos  
 pwd:  en que directorio de la rpi estamos  

@@ -1,7 +1,6 @@
 #!/bin/bash
 #  A small Bash script to turn on and off an LED that is attached to GPIO 4
-#  using Linux sysfs. Written by Derek Molloy (www.derekmolloy.ie) for the
-#  book Exploring Raspberry PI
+#  using Linux sysfs.
 LED_GPIO=4   # Use a variable -- easy to change GPIO number
 
 # An example Bash functions
