@@ -1,9 +1,9 @@
 # Varios  
-### Version Linux  
+## Version Linux  
 //Version de Linux que ejecutamos:  
 uname -a  
 
-### Variables de entorno  
+## Variables de entorno  
 // Lista todas las variables  
 env  
 
@@ -13,7 +13,19 @@ export PATH=$PATH:/usr/home/eugenio
 //Muestra el valor de una variable de entorno  
 echo $PATH  
 
-### Editor  
+## Actualiza la Raspberry Pi  
+
+//Configura  
+raspi-config  
+
+### Raspbian  
+//Instala la utilidad  
+apt install rpi-update  
+
+//Ejecuta la utilidad  
+rpi-update  
+
+## Editor  
 nano  
 
 # Usuarios y Grupos  
@@ -60,3 +72,28 @@ apt remove xxxxx
 
 //Descarga un programa  
 apt-get download xxxxx  
+
+# Servicios  
+// Version  
+systemctl --version  
+
+## Configuracion de arranque  
+//Lista targets  
+systemctl list-units -t service  
+
+## Operaciones  
+//Lista servicios  
+systemctl list-units -t service  
+systemctl list-units -t service|grep rdp  
+
+//Operaciones con Servicios  
+systemctl start xrdp  
+systemctl stop xrdp  
+systemctl restart xrdp
+
+//Configurar que hace el servicio al arrancar el sistema    
+systemctl enable xrdp
+systemctl disable xrdp  
+
+//Que copnfiguracion de arranque tiene un servicio  
+systemctl is-enabled xrdp
