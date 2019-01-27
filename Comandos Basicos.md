@@ -153,6 +153,11 @@ Podemos crear una unidad que se monte en memoria, esto es, en la que el disposit
 
 tempfs  
 
+## Gestion  
+// Espacio libre  
+df -h  
+du -h /home/eugenio  
+
 ## Vinculos  
 // Crea un archivo  
 touch miarch.txt  
@@ -184,3 +189,12 @@ chown eugenio arch.txt
 
 //Cambio de grupo  
 chgrp migrupo arch.txt  
+
+# Sys
+El directorio /sys es un directorio virtual, en el que el SSOO mapea informacion sobre los distintos dispositivos que controla.
+
+//LEDs  
+/sys/class/leds  
+
+//Itereactua con el dispositivo por medio del sistema virtual  
+sh -c "echo none > trigger"  
