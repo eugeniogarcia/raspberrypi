@@ -127,11 +127,11 @@ systemctl is-enabled xrdp
 touch miarch.txt  
 
 //Crea un link simbolico/soft  
-//Creara una nueva entrada en el listado de inodes. Todos los links apunta al mismo //archivo fisico. Si borramos el archivo, todos los links se quedaran huerfanos  
+Creara una nueva entrada en el listado de inodes. Todos los links apunta al mismo archivo fisico. Si borramos el archivo, todos los links se quedaran huerfanos:  
 ln -s miarch.txt s1    
 
 //Crea un link duro/hard.
-//No se crea un nuevo inode, y si nos fijamos en el archivo, veremos que el contador pasa //de 1 a 2. El contador nos indica el numero total de elementos que apuntan al mismo //archivo (en este caso dos, el propio archivo mas el hard link que hemos creado)  
+No se crea un nuevo inode, y si nos fijamos en el archivo, veremos que el contador pasa de 1 a 2. El contador nos indica el numero total de elementos que apuntan al mismo archivo (en este caso dos, el propio archivo mas el hard link que hemos creado):  
 ln miarch.txt s2  
 
 //Muestra los i-nodes de cada archivo  
