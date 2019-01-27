@@ -82,9 +82,17 @@ Raspbian utiliza como gestor de arranque el nuevo systemctl. Frete a initd este 
 
 who -r  
 
-//Cambia el nivel de arranque al nivel 5  
+//Arranca al nivel 5
 init 5  
 
+//Cual es el target por default  
+systemctl get-default  
+
+//Muestra todos los targets disponibles  
+systemctl list-units -t target  
+
+//Cambia el target  
+systemctl isolate graphical.target
 
 //Lista targets  
 systemctl list-units -t service  
