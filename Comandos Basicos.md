@@ -122,6 +122,37 @@ systemctl disable xrdp
 systemctl is-enabled xrdp
 
 # Gestion de Archivos  
+
+## Filesystem  
+### Montaje  
+//Lista los dispositivos de bloques disponibles en el sistema:  
+lsblk  
+
+//Directorio donde configuramos las unidades que se montaran en el arranque  
+/etc/fstab  
+
+//Monta todas las unidades definidas en /etc/fstab  
+mount -a  
+
+### Montar en una unidad fija  
+Si en lugar de que la unidad que se monte en cada directorio no sea predecible, podemos definir en el /etc/fstab una referencia al UUID del dispositivo. Lo primero sera saber cual es el UUID del despositivo:  
+blkid /dev/sda1  
+
+Podemos usar el UUID para definir la entrada en el /etc/fstab  
+
+### Formatea una dispositivo  
+//Crea - formatea - un filesystem en un device  
+mkfs /dev/sda1    
+mkfs.ext4 /dev/sda1  
+
+//Monta un device en un directorio  
+mount -t ext4 /dev/sda1 /home/eugenio/midir  
+
+### Unidad temporal
+Podemos crear una unidad que se monte en memoria, esto es, en la que el dispositivo sera en memoria. Esto puede ser util para montar unidades en las que se guarden logs. De esta forma evitamos que los logs se guarden tarjetas de memoria - lo que reduciria su tiempo de vida, que esta fijado por el numero de escrituras que se pueden hacer en una tarjeta; El unico inconveniente que esto tiene es que el almacenamiento es efimero, cuando se apague el dispositivo, los datos aqui guardados se pierden  
+
+tempfs  
+
 ## Vinculos  
 // Crea un archivo  
 touch miarch.txt  
