@@ -41,14 +41,14 @@ nano /etc/sudoers
 //Busca un paquete  
 apt-cache search notepad++  
 
-//Muestra detalles de un programa
+//Muestra detalles de un programa  
 apt-cache show notepad++
 
-## Gestion de Paquetes  
+## Manaja Paquetes  
 // Actualiza la lista de Paquetes  
 apt update  
 
-// Actualiza cualquier paquete que lo precise
+// Actualiza cualquier paquete que lo precise  
 apt upgrade  
 
 //Borra cualquier paquete que sea ya obsoleto  
