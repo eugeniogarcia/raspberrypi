@@ -1,3 +1,0 @@
-#!/bin/bash
-g++ clientTest.cpp network/SocketClient.cpp -o clientTest -pthread
-g++ server.cpp network/SocketServer.cpp network/ConnectionHandler.cpp -o server -pthread -lwiringPi
