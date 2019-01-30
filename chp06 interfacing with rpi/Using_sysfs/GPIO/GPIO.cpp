@@ -110,6 +110,7 @@ int GPIO::unexportGPIO(){
    return this->write(GPIO_PATH, "unexport", this->number);
 }
 
+//Especifica si es entrada o salida
 int GPIO::setDirection(GPIO_DIRECTION dir){
    switch(dir){
    case INPUT: return this->write(this->path, "direction", "in");
@@ -120,6 +121,13 @@ int GPIO::setDirection(GPIO_DIRECTION dir){
    return -1;
 }
 
+GPIO_DIRECTION GPIO::getDirection(){
+	string input = this->read(this->path, "direction");
+	if (input == "in") return INPUT;
+	else return OUTPUT;
+}
+
+//Asigna un valor a la salida
 int GPIO::setValue(GPIO_VALUE value){
    switch(value){
    case HIGH: return this->write(this->path, "value", "1");
@@ -130,6 +138,15 @@ int GPIO::setValue(GPIO_VALUE value){
    return -1;
 }
 
+//Obtiene el valor medido en la e/s
+GPIO_VALUE GPIO::getValue(){
+	string input = this->read(this->path, "value");
+	if (input == "0") return LOW;
+	else return HIGH;
+}
+
+//Espcifica que tipo de cambio usaremos para disparar nuestros eventos/interrupts
+//en esta e/s
 int GPIO::setEdgeType(GPIO_EDGE value){
    switch(value){
    case NONE: return this->write(this->path, "edge", "none");
@@ -144,27 +161,7 @@ int GPIO::setEdgeType(GPIO_EDGE value){
    return -1;
 }
 
-int GPIO::setActiveLow(bool isLow){
-   if(isLow) return this->write(this->path, "active_low", "1");
-   else return this->write(this->path, "active_low", "0");
-}
-
-int GPIO::setActiveHigh(){
-   return this->setActiveLow(false);
-}
-
-GPIO_VALUE GPIO::getValue(){
-	string input = this->read(this->path, "value");
-	if (input == "0") return LOW;
-	else return HIGH;
-}
-
-GPIO_DIRECTION GPIO::getDirection(){
-	string input = this->read(this->path, "direction");
-	if (input == "in") return INPUT;
-	else return OUTPUT;
-}
-
+//Obtiene el tipo de cambio asociado a esta e/s
 GPIO_EDGE GPIO::getEdgeType(){
 	string input = this->read(this->path, "edge");
 	if (input == "rising") return RISING;
@@ -173,6 +170,21 @@ GPIO_EDGE GPIO::getEdgeType(){
 	else return NONE;
 }
 
+//Especifica si nuestra e/s tendra un pull-down resistor o no
+//Cuando tenemos una resistencia pull-down, cuando la e/s no esta activada, el
+//voltaje que tendremos sera 0V. Si tenemos un pull-up resistor, el voltaje
+//cuando no esta activada la e/s serian 3.3v
+int GPIO::setActiveLow(bool isLow){
+   if(isLow) return this->write(this->path, "active_low", "1");
+   else return this->write(this->path, "active_low", "0");
+}
+
+//Establece un pull-up en la e/s
+int GPIO::setActiveHigh(){
+   return this->setActiveLow(false);
+}
+
+//Ausiliares para manejar el stream
 int GPIO::streamOpen(){
 	stream.open((path + "value").c_str());
 	return 0;
@@ -283,6 +295,7 @@ int GPIO::waitForEdge(CallbackType callback){
     return 0;
 }
 
+//Destructor. Desactiva la e/s
 GPIO::~GPIO() {
 	this->unexportGPIO();
 }
