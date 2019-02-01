@@ -198,6 +198,7 @@ int GPIO::streamClose(){
 	return 0;
 }
 
+//Cambia de e->s y viceversa
 int GPIO::toggleOutput(){
 	this->setDirection(OUTPUT);
 	if ((bool) this->getValue()) this->setValue(LOW);
@@ -206,28 +207,45 @@ int GPIO::toggleOutput(){
 }
 
 int GPIO::toggleOutput(int time){ return this->toggleOutput(-1, time); }
+
+//Interesante.
 int GPIO::toggleOutput(int numberOfTimes, int time){
+	//Hacemos que sea una salida
 	this->setDirection(OUTPUT);
 	this->toggleNumber = numberOfTimes;
 	this->togglePeriod = time;
 	this->threadRunning = true;
-    if(pthread_create(&this->thread, NULL, &threadedToggle, static_cast<void*>(this))){
-    	perror("GPIO: Failed to create the toggle thread");
-    	this->threadRunning = false;
-    	return -1;
-    }
-    return 0;
+	//Crea un thread. Se pasa el puntero al thread que queremos que se cree,
+	//y la funcion que se debe ejecutar en el thread. El ultimo argumento de la
+	//funcion son los argumentos a pasar a la funcion que ejecuta el thread; En
+	//este caso le pasamos this, el puntero a esta clase. Observar como hacemos
+	//un cast a void*
+  if(pthread_create(&this->thread, NULL, &threadedToggle, static_cast<void*>(this))){
+  	perror("GPIO: Failed to create the toggle thread");
+		//Si no se pudo crear el thread, el estado es false
+		this->threadRunning = false;
+  	return -1;
+  }
+  return 0;
 }
 
 // This thread function is a friend function of the class
+//Notase como la funcion no pertenece a la clase, no es GPIO::
 void* threadedToggle(void *value){
+	//El argumento es un GPIO*, asi que hacemos un cast
 	GPIO *gpio = static_cast<GPIO*>(value);
+	//Obtenemos el valor
 	bool isHigh = (bool) gpio->getValue(); //find current value
+	//Mientras el estado sea running, hara eso una y otra vez:
 	while(gpio->threadRunning){
+		//Si la salida es activa, nos aseguramos de que lo siga siendo
 		if (isHigh)	gpio->setValue(HIGH);
 		else gpio->setValue(LOW);
+		//Esperamos un rato
 		usleep(gpio->togglePeriod * 500);
+		//Cambiamos el signo de la salida
 		isHigh=!isHigh;
+		//Iteramos una vez mas
 		if(gpio->toggleNumber>0) gpio->toggleNumber--;
 		if(gpio->toggleNumber==0) gpio->threadRunning=false;
 	}

@@ -8,6 +8,7 @@ using namespace exploringRPi;
 using namespace std;
 
 int main(){
+   //Objetos GPIO.
    GPIO outGPIO(17), inGPIO(27);    // pin 11 and pin 13
 
    outGPIO.setDirection(OUTPUT);    // basic output example
