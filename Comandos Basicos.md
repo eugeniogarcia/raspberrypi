@@ -198,3 +198,36 @@ El directorio /sys es un directorio virtual, en el que el SSOO mapea informacion
 
 //Itereactua con el dispositivo por medio del sistema virtual  
 sh -c "echo none > trigger"  
+
+# Networking  
+//Get networking information  
+ifconfig  
+
+We can see all the network adapters. the ones starting as w* are wifi adapters. The lan* are ethernet adapters  
+
+//Get information about the wifi configuration  
+wiconfig  
+
+//This will give us about our router  
+route -n  
+
+//Ver la configuración del DNS  
+cat /etc/resolv.conf  
+
+//El archivo /etc/dhcpcd.conf contiene la información de los interfaces de red    
+nano /etc/dhcpcd.conf  
+
+//Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente
+interface eth0  
+static ip_address=192.168.1.140  
+static routers=192.168.1.1  
+static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
+
+interface wlan0  
+static ip_address=192.168.1.141  
+static routers=192.168.1.1  
+static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
+
+En domain_name_servers hemos listado las direcciones de los dns, tal y como las recuperamos de cat /etc/resolv.conf. En ip_address colocamos la direccion estatica que queremos usar. En routers la direccion de nuestro gateway router.  
+
+Cuando se hacen cambios hay que hacer un reboot.  
