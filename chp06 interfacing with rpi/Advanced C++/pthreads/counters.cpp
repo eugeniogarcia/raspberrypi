@@ -1,9 +1,3 @@
-/*
- * Counters.cpp  Created on: 29 Apr 2015
- * Copyright (c) 2015 Derek Molloy (www.derekmolloy.ie)
- * Made available for the book "Exploring Raspberry Pi"
- */
-
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>

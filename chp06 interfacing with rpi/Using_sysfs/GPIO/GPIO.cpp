@@ -257,11 +257,14 @@ int GPIO::waitForEdge(){
 	this->setDirection(INPUT); // must be an input pin to poll its value
 	int fd, i, epollfd, count=0;
 	struct epoll_event ev;
+	//Crea un epoll
 	epollfd = epoll_create(1);
+		//Comprueba si funciono
     if (epollfd == -1) {
 	   perror("GPIO: Failed to create epollfd");
 	   return -1;
     }
+		//Abre el archivo que contiene el valor de la entrada, para solo lectura y no exclusivo
     if ((fd = open((this->path + "value").c_str(), O_RDONLY | O_NONBLOCK)) == -1) {
        perror("GPIO: Failed to open file");
        return -1;

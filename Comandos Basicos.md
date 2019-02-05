@@ -31,6 +31,11 @@ rpi-update
 ## Editor  
 nano  
 
+## Pasa argumentos  
+//Pasamos una serie de argumentos a otro programa   
+echo " arg1 arg2 arg3"> arg.txt  
+cat arg.txt|xargs touch  
+
 # Usuarios y Grupos  
 //Quien soy yo  
 whoami  
