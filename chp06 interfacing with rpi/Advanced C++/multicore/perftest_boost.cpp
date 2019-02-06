@@ -1,7 +1,6 @@
 /***
  * perftest_boost.cpp A simple threaded performance test that provides indicative performance
  * results on a single core versus a multi core processor using pthreads using Boost
- * Written by Derek Molloy for the book "Exploring Raspberry Pi"
  * This example uses the C++ chrono library that was introduced in C++11, so please
  * compile using: g++ perftest.cpp -o perftest -pthread -stdc++0x
  */
