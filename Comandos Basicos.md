@@ -22,7 +22,9 @@ echo $PATH
 ```
 
 ## Busca un comando  
+```
 whereis javac  
+```  
 
 ## Actualiza la Raspberry Pi  
 Configura:  
@@ -35,7 +37,7 @@ Instala la utilidad:
 apt install rpi-update  
 ```  
 
-Ejecuta la utilidad  
+Ejecuta la utilidad:  
 ```
 rpi-update  
 ```
@@ -46,52 +48,50 @@ nano
 ```  
 
 ## Pasa argumentos  
-Pasamos una serie de argumentos a otro programa   
+Pasamos una serie de argumentos a otro programa:   
 ```
 echo " arg1 arg2 arg3"> arg.txt  
 cat arg.txt|xargs touch  
 ```
 
 # Usuarios y Grupos  
-Quien soy yo  
+Quien soy yo:  
 ```  
 whoami  
 ```  
 ## Grupos  
-Lista grupos  
+Lista grupos:  
 ```
 groupmod (seguido de dos ALT+TAB lista todos los grupos)
 ```  
 
-Crea grupo  
+Crea grupo:  
 ```
 groupadd  
 ```  
-
-Añade un usuario a un grupo    
+Añade un usuario a un grupo:    
 ```
 adduser eugenio root
 ```
 ## Usuarios  
-Crea usuario    
+Crea usuario:    
 ```
 adduser  
 ```  
-Cambia password  
+Cambia password:  
 ```
 passwd eugenio  
 ```  
-Habilta el usuario root y cambia la contraseña    
+Habilta el usuario root y cambia la contraseña:    
 ```
 passwd root  
 ```
 
-Lista datos de un usuario    
+Lista datos de un usuario:    
 ```
 id eugenio
 ```  
-
-Modifica un usuario    
+Modifica un usuario:    
 ```
 usermod (seguido de dos ALT+TAB lista todos los usuarios)
 
@@ -101,106 +101,100 @@ usermod -a -G root eugenio
 ```
 
 ## sudo  
-Abre la sesion de superusuario y la mantiene    
+Abre la sesion de superusuario y la mantiene:    
 ```
 sudo -i  
 ```
-Donde se indica que usuarios pueden utilzar sudo  
+Donde se indica que usuarios pueden utilzar sudo:  
 ```  
 nano /etc/sudoers  
 ```
 
 # Gestion de Paquetes  
-Busca un paquete  
+Busca un paquete:  
 ```
 apt-cache search notepad++  
 ```  
-Muestra detalles de un programa  
+Muestra detalles de un programa:  
 ```
 apt-cache show notepad++
 ```
 ## Maneja Paquetes  
-Actualiza la lista de Paquetes  
+Actualiza la lista de Paquetes:  
 ```  
 apt update  
 ```  
 
-Actualiza cualquier paquete que lo precise  
+Actualiza cualquier paquete que lo precise:  
 ```
 apt upgrade  
 ```
 
-Borra cualquier paquete que sea ya obsoleto  
+Borra cualquier paquete que sea ya obsoleto:  
 ```
 apt autoremove
 ```  
 
-Instala y elimina un programa    
+Instala y elimina un programa:    
 ```
 apt install xxxxx  
 apt remove xxxxx  
 ```  
-
-Descarga un programa  
+Descarga un programa:  
 ```
 apt-get download xxxxx  
 ```
-
 # Servicios  
-Version    
+Version:    
 ```
 systemctl --version  
 ```  
-
 ## Configuracion de arranque  
 Raspbian utiliza como gestor de arranque el nuevo systemctl. Frete a initd este nuevo comando introduce la posibilidad de arrancar en paralelo diferentes servicios. Initd sigue estando disponible, para garantizar la compatibilidad. Por ejemplo, podemos ver en que nivel estamos con:  
 ```
 who -r  
 ```
-Arranca al nivel 5  
+Arranca al nivel 5:  
 ```
 init 5  
 ```  
 
-Cual es el target por default  
+Cual es el target por default:  
 ```
 systemctl get-default  
 ```  
-Muestra todos los targets disponibles    
+Muestra todos los targets disponibles:    
 ```
 systemctl list-units -t target  
 ```  
 
-Cambia el target  
+Cambia el target:  
 ```
 systemctl isolate graphical.target  
 ```  
 
 ## Operaciones  
-Lista servicios  
+Lista servicios:  
 ```
 systemctl list-units -t service  
 systemctl list-units -t service|grep rdp  
 ```  
 
-Operaciones con Servicios  
+Operaciones con Servicios:  
 ```
 systemctl start xrdp  
 systemctl stop xrdp  
 systemctl restart xrdp
 ```  
-
-Configurar que hace el servicio al arrancar el sistema    
+Configurar que hace el servicio al arrancar el sistema:    
 ```
 systemctl enable xrdp
 systemctl disable xrdp  
 ```
-
-Que copnfiguracion de arranque tiene un servicio  
+Que copnfiguracion de arranque tiene un servicio:  
 ```
 systemctl is-enabled xrdp
 ```  
-
 # Gestion de Archivos  
 
 ## Filesystem  
@@ -209,56 +203,50 @@ Lista los dispositivos de bloques disponibles en el sistema:
 ```
 lsblk  
 ```  
-Directorio donde configuramos las unidades que se montaran en el arranque  
+Directorio donde configuramos las unidades que se montaran en el arranque:  
 ```
 /etc/fstab  
 ```  
-
-Monta todas las unidades definidas en /etc/fstab  
+Monta todas las unidades definidas en /etc/fstab:  
 ```
 mount -a  
 ```  
-
 ### Montar en una unidad fija  
 Si en lugar de que la unidad que se monte en cada directorio no sea predecible, podemos definir en el /etc/fstab una referencia al UUID del dispositivo. Lo primero sera saber cual es el UUID del despositivo:  
 ```
 blkid /dev/sda1  
 ```  
-
-Podemos usar el UUID para definir la entrada en el /etc/fstab  
+Podemos usar el UUID para definir la entrada en el /etc/fstab.  
 
 ### Formatea una dispositivo  
-Crea - formatea - un filesystem en un device  
+Crea - formatea - un filesystem en un device:  
 ```
 mkfs /dev/sda1    
 mkfs.ext4 /dev/sda1  
 ```  
 
-Monta un device en un directorio  
+Monta un device en un directorio:  
 ```
 mount -t ext4 /dev/sda1 /home/eugenio/midir  
 ```  
 
 ### Unidad temporal
-Podemos crear una unidad que se monte en memoria, esto es, en la que el dispositivo sera en memoria. Esto puede ser util para montar unidades en las que se guarden logs. De esta forma evitamos que los logs se guarden tarjetas de memoria - lo que reduciria su tiempo de vida, que esta fijado por el numero de escrituras que se pueden hacer en una tarjeta; El unico inconveniente que esto tiene es que el almacenamiento es efimero, cuando se apague el dispositivo, los datos aqui guardados se pierden  
+Podemos crear una unidad que se monte en memoria, esto es, en la que el dispositivo sera en memoria. Esto puede ser util para montar unidades en las que se guarden logs. De esta forma evitamos que los logs se guarden tarjetas de memoria - lo que reduciria su tiempo de vida, que esta fijado por el numero de escrituras que se pueden hacer en una tarjeta; El unico inconveniente que esto tiene es que el almacenamiento es efimero, cuando se apague el dispositivo, los datos aqui guardados se pierden.  
 
 ```
 tempfs  
 ```  
-
 ## Gestion  
- Espacio libre  
+ Espacio libre:  
 ```
 df -h  
 du -h /home/eugenio  
 ```  
-
 ## Vinculos  
-Crea un archivo  
+Crea un archivo:  
 ```
 touch miarch.txt  
 ```  
-
 **Crea un link simbolico/soft**. Creara una nueva entrada en el listado de inodes. Todos los links apunta al mismo archivo fisico. Si borramos el archivo, todos los links se quedaran huerfanos:  
 ```  
 ln -s miarch.txt s1    
