@@ -253,21 +253,20 @@ ln -s miarch.txt s1
 ```  
 
 **Crea un link duro/hard**. No se crea un nuevo inode, y si nos fijamos en el archivo, veremos que el contador pasa de 1 a 2. El contador nos indica el numero total de elementos que apuntan al mismo archivo (en este caso dos, el propio archivo mas el hard link que hemos creado):  
+```
 ln miarch.txt s2  
-
-Muestra los i-nodes de cada archivo  
+```
+Muestra los i-nodes de cada archivo:  
 ```
 ls -ali  
 ```
-
 ## Permisos
-Diversas formas de cambiar los permisos asociados a un archivo    
+Diversas formas de cambiar los permisos asociados a un archivo:    
 ```
 chmod 664 arch.txt  
 chmod u=rw,g=rw,o=r arch.txt  
 chmod g+w arch.txt  
 ```  
-
 ### Mascara
 La mascara nos define que permisos se asignaran por defecto cuando se cree un archivo o directorio:  
 ```
@@ -275,25 +274,20 @@ umask 022
 ```  
 
 ## Cambia grupos y usuarios  
-Cambio de dueño  
+Cambio de dueño:  
 ```
 chown eugenio arch.txt  
 ```  
-
-Cambio de grupo  
+Cambio de grupo:  
 ```
 chgrp migrupo arch.txt  
 ```  
-
-# Sys
-El directorio /sys es un directorio virtual, en el que el SSOO mapea informacion sobre los distintos dispositivos que controla.
-
-LEDs  
+# Sys (directorio virtual)
+El directorio /sys es un directorio virtual, en el que el SSOO mapea informacion sobre los distintos dispositivos que controla. Por ejemplo, en el caso de la raspberry Pi, los LEDs se pueden controlar en:    
 ```
 /sys/class/leds  
 ```  
-
-Itereactua con el dispositivo por medio del sistema virtual  
+Itereactua con el dispositivo por medio del sistema virtual:    
 ```
 sh -c "echo none > trigger"  
 ```  
@@ -316,81 +310,71 @@ journalctl --disk-usage
 journalctl --verify
 journalctl --rotate
 ```
-
 Limpia los logs:  
 ```
 journalctl --rotate
 journalctl --vacuum-time=1s
 ```  
-
 Lista logs para un determinado intervalo:  
 ```
 journalctl --since "2019-01-30 14:00:00"
 journalctl --since today
 ```
-
-
 # Networking  
-Get networking information  
+Get networking information:  
 ```
 ifconfig  
 ```  
-We can see all the network adapters. the ones starting as w* are wifi adapters. The lan* are ethernet adapters  
-
-Get information about the wifi configuration  
+We can see all the network adapters. the ones starting as w* are wifi adapters. The lan* are ethernet adapters. To get the information about the wifi configuration:  
 ```
 wiconfig  
 ```  
-This will give us about our router  
+This will give us information about our router. This will come handy if we want to configure manually our network adapter:    
 ```
 route -n  
 ```  
-## Lista la informacion del adaptador de red  
+## Adaptador de red  
+Lista la informacion de los adaptadores de red encontrados en el sistema:    
 ```
 rfkill list
 ```  
-Desbloquea la WIFI:  
+Podremos ver el estado de cada adaptador. Si alguno estuviera deshabilitado (bloqueado), lo podriamos habilitar como sigue:    
 ```
 rfkill unblock wifi
 ```  
-Lista redes:  
+Lista redes wifi:  
 ```
 iwconfig
 
 iwlist wlp2s0 scan | grep ESSID
 ```  
-Tambien podemos usar el comando ``ìw`` para hacer esto mismo:  
+Tambien podemos usar el comando ``iw`` para hacer esto mismo - es equivalente:  
 Lista los adaptadores disponibles:  
 ```
 iw dev
 ```  
-
-Estado de un adaptador wifi:  
+Y la información concreta de un determinado adaptador:  
 ```
 iw link wlp2s0
 ```  
-
-Buscar redes wifi:  
-```
-iw wlp2s0 scan|grep SSID:
-```  
-
 Levantar la interfaz:  
 ```
 ip link set wlp2s0 up
 ```
-
-## Network Management Client    
-Lista de conexiones guardadas:  
+Podemos tambien buscar las redes wifi disponibles:  
+```
+iw wlp2s0 scan|grep SSID:
+```  
+### Network Management Client    
+Este cliente nos permite hacer las operaciones antes descritas de otra forma. Para empezar, podemos ver la lista de conexiones guardadas:  
 ```
 nmcli c  
 ```
-Escanea las redes:  
+Podemos escanear las redes:  
 ```
 nmcli d wifi list
 ```
-
-Se conecta a una red:  
+Si nos quisieramos conectar a una red:  
 ```
 nmcli dev wifi connect MASMOVIL_xVfu password jzkDP26XhjU3
 ```
