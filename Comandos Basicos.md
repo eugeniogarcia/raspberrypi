@@ -365,7 +365,7 @@ Podemos tambien buscar las redes wifi disponibles:
 ```
 iw wlp2s0 scan|grep SSID:
 ```  
-### Network Management Client    
+### Network Management Client (this one works!!!)  
 Este cliente nos permite hacer las operaciones antes descritas de otra forma. Para empezar, podemos ver la lista de conexiones guardadas:  
 ```
 nmcli c  
@@ -374,43 +374,26 @@ Podemos escanear las redes:
 ```
 nmcli d wifi list
 ```
+
+Parar y arrancar la wifi:  
+```
+nmcli r wifi off  
+
+nmcli r wifi on  
+```  
 Si nos quisieramos conectar a una red:  
 ```
 nmcli dev wifi connect MASMOVIL_xVfu password jzkDP26XhjU3
 ```
-
-
-
-## Configurar una conexion de red de forma estatica  
-Ver la configuración del DNS:  
+Comprueba la wifi "en verde", la conectada:  
 ```
-cat /etc/resolv.conf  
+nmcli con
 ```
-
-El archivo /etc/dhcpcd.conf contiene la información de los interfaces de red:  
+Desconecta una wifi:  
 ```
-nano /etc/dhcpcd.conf  
+nmcli con down MASMOVIL_xVfu
 ```  
-
-Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente
-```
-interface eth0  
-static ip_address=192.168.1.140  
-static routers=192.168.1.1  
-static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
-
-interface wlan0  
-static ip_address=192.168.1.141  
-static routers=192.168.1.1  
-static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
-```  
-
-En domain_name_servers hemos listado las direcciones de los dns, tal y como las recuperamos de cat /etc/resolv.conf. En ip_address colocamos la direccion estatica que queremos usar. En routers la direccion de nuestro gateway router.  
-
-Cuando se hacen cambios hay que hacer un reboot.  
-
-
-## Conectarse a una red (wpa suplicant)  
+### Conectarse a una red (wpa suplicant)  
 Primero instalamos la utilidad:  
 ```
 sudo apt install wpasupplicant
@@ -435,3 +418,29 @@ Finally, once it is installed (we can check it with ``ifconfig``):
 ```
 dhclient wlp2s0
 ```  
+
+## Configurar una conexion de red de forma estatica  
+Ver la configuración del DNS:  
+```
+cat /etc/resolv.conf  
+```
+
+El archivo /etc/dhcpcd.conf contiene la información de los interfaces de red:  
+```
+nano /etc/dhcpcd.conf  
+```  
+Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente
+```
+interface eth0  
+static ip_address=192.168.1.140  
+static routers=192.168.1.1  
+static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
+
+interface wlan0  
+static ip_address=192.168.1.141  
+static routers=192.168.1.1  
+static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
+```  
+En domain_name_servers hemos listado las direcciones de los dns, tal y como las recuperamos de cat /etc/resolv.conf. En ip_address colocamos la direccion estatica que queremos usar. En routers la direccion de nuestro gateway router.  
+
+Cuando se hacen cambios hay que hacer un reboot.  
