@@ -429,7 +429,7 @@ El archivo /etc/dhcpcd.conf contiene la información de los interfaces de red:
 ```
 nano /etc/dhcpcd.conf  
 ```  
-Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente
+Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente:
 ```
 interface eth0  
 static ip_address=192.168.1.140  
@@ -443,4 +443,4 @@ static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0
 ```  
 En domain_name_servers hemos listado las direcciones de los dns, tal y como las recuperamos de cat /etc/resolv.conf. En ip_address colocamos la direccion estatica que queremos usar. En routers la direccion de nuestro gateway router.  
 
-Cuando se hacen cambios hay que hacer un reboot.  
+Cuando se hacen cambios hay que hacer un ``reboot``.  
