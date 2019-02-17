@@ -321,6 +321,10 @@ journalctl --since "2019-01-30 14:00:00"
 journalctl --since today
 ```
 # Networking  
+Cual es mi dirección:  
+```
+hostname -I
+```
 Get networking information:  
 ```
 ifconfig  
@@ -352,10 +356,8 @@ Tambien podemos usar el comando ``iw`` para hacer esto mismo - es equivalente:
 Lista los adaptadores disponibles:  
 ```
 iw dev
-```  
-Y la información concreta de un determinado adaptador:  
-```
-iw link wlp2s0
+
+ip link
 ```  
 Levantar la interfaz:  
 ```
@@ -365,8 +367,211 @@ Podemos tambien buscar las redes wifi disponibles:
 ```
 iw wlp2s0 scan|grep SSID:
 ```  
-### Network Management Client (this one works!!!)  
-Este cliente nos permite hacer las operaciones antes descritas de otra forma. Para empezar, podemos ver la lista de conexiones guardadas:  
+### Conectar  
+Sin encriptar:  
+```
+iw dev wlan0 connect your_essid
+```
+Con WEP. La contraseña va en hexadecimal o en ASCII (el formato se identifica automáticamente porque la clave tiene un tamaño fijo):    
+```
+iw dev wlan0 connect your_essid key 0:your_key
+```
+Podemos especificar un set de contraseñas. Aqui estariamos informando la tercera contraseña del set (se empieza a contar desde 0):  
+```
+iw dev wlan0 connect your_essid key d:2:your_key
+```
+Para WAP no podemos usar iw. Tenemos que utilizar wpa_supplicant.  
+
+### Conectarse a una red (wpa suplicant)  
+Primero instalamos la utilidad:  
+```
+sudo apt install wpasupplicant
+```  
+Esto crea un archivo llamado ``/etc/wpa_supplicant.conf``.  
+
+Para crear la conexion:  
+```
+wpa_passphrase your-ESSID your-passphrase | sudo tee /etc/wpa_supplicant.conf  
+
+wpa_passphrase MASMOVIL_xVfu jzkDP26XhjU3 | tee /etc/wpa_supplicant.conf
+```
+Los comandos anteriores actualizan el archivo de configuración /etc/wpa_supplicant.conf. Esto mismo es lo que haría en respberrypi la opcion netowrking del raspi-config, cuando seleccionamos wifi e ingresamos un SSID y la contraseña. Por defecto, eso si, el raspi-config guarda la configuración en /etc/wpa_supplicant/wpa_supplicant.conf; Por este motivo en muchos tutoriales, cuando vemos la configuración de /etc/networking/interfaces se hace referencia a ese directiorio de wpa_supplicant.  
+
+Finalmente configuramos la conexión wifi con wpa_supplicant:  
+```
+wpa_supplicant -c /etc/wpa_supplicant.conf -i wlp2s0  
+```  
+To run it in the background instead:  
+```
+wpa_supplicant -B -c /etc/wpa_supplicant.conf -i wlp2s0
+```
+Al comando de wpa_supplicant le podemos especificar el Driver con la opción -D. Por ejemplo:  
+```
+wpa_supplicant -B -c /etc/wpa_supplicant/mywired.conf -i eth0 -D wired
+wpa_supplicant -B -c /etc/wpa_supplicant/mywireless.conf -i wlan0 -D wext
+```
+Los posibles valores que el driver acepta son:  
+```
+wext = Linux wireless extensions (generic)
+nl80211 = Linux nl80211/cfg80211
+wired = Wired Ethernet driver
+none = no driver (RADIUS server/WPS ER)
+```  
+Finally, once it is installed (we can check it with ``ifconfig``), we can ask the dhcp client to issue an ip:  
+```
+dhclient wlp2s0
+```  
+### Hacer que la configuración se aplique al arrancar    
+Si queremos que al arrancar se establezca la configuración por defecto
+```
+nano /etc/network/interfaces
+```
+Insertamos en el archivo la configuración. En este ejemplo estamos configurando eth0 con una ip estática, la wifi con dhcp y wpa (que hemos definido con el wpa_supplicant).  
+
+#### Opcion 1. Usando solo el /etc/network/interfaces  
+En esta opción no vamos a utilizar el /etc/dhcpcd.conf para especificar la dirección estática:  
+
+```
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+#INICIO_CAMBIO_EUGENIO
+auto lo
+iface lo inet loopback
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-driver wext
+wpa-conf /etc/wpa_supplicant.conf
+
+auto eth0
+allow-hotplug eth0
+iface eth0 inet static
+address 192.168.1.120
+netmask 255.255.255.0
+network 192.168.1.0
+broadcst 192.168.1.255
+gateway 192.168.1.1
+dns-nameservers 8.8.8.8  8.8.4.4
+
+#FIN_CAMBIO_EUGENIO
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+```
+#### Opcion 2. Usando /etc/network/interfaces y /etc/dhcpcd.conf     
+En esta opción definimos la dirección estática en /etc/dhcpcd.conf (tambien podriamos definir en este archivo un comportamiento hibrido. Hacer que se asigne la dirección con dhcpcd, pero en caso de que falle, que se haga de forma estátical. En esto consiste el fallback):  
+
+```
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+#INICIO_CAMBIO_EUGENIO
+auto lo
+iface lo inet loopback
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet manual
+wpa-driver wext
+wpa-conf /etc/wpa_supplicant.conf
+
+auto eth0
+iface eth0 inet manual
+
+
+#FIN_CAMBIO_EUGENIO
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+```
+Notese como en este caso configuramos como ``manual`` la configuración de eth0 y de wlan0. Esto lo que significa es que no especificamos los datos del adaptador, ip, etc. aqui, pero en otro lugar (el dhcpcd.conf). En el dhcpcd.conf especificaremos una ruta estática para el eth0, y dinámica - el valor por defecto - para el wlan0. Veamos el archivo de configuración de dhcpcd:    
+```
+nano /etc/dhcpcd.conf  
+```
+El contenido del archivo es:  
+```
+# A sample configuration for dhcpcd.
+# See dhcpcd.conf(5) for details.
+
+# Allow users of this group to interact with dhcpcd via the control socket.
+#controlgroup wheel
+
+# Inform the DHCP server of our hostname for DDNS.
+hostname
+
+# Use the hardware address of the interface for the Client ID.
+clientid
+# or
+# Use the same DUID + IAID as set in DHCPv6 for DHCPv4 ClientID as per RFC4361.
+# Some non-RFC compliant DHCP servers do not reply with this set.
+# In this case, comment out duid and enable clientid above.
+#duid
+
+# Persist interface configuration when dhcpcd exits.
+persistent
+
+# Rapid commit support.
+# Safe to enable by default because it requires the equivalent option set
+# on the server to actually work.
+option rapid_commit
+
+# A list of options to request from the DHCP server.
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+# Most distributions have NTP support.
+option ntp_servers
+# Respect the network MTU. This is applied to DHCP routes.
+option interface_mtu
+
+# A ServerID is required by RFC2131.
+require dhcp_server_identifier
+
+# Generate Stable Private IPv6 Addresses instead of hardware based ones
+slaac private
+
+#INICIO_CAMBIO_EUGENIO
+# Example static IP configuration:
+interface eth0
+static ip_address=192.168.1.120/24
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1 8.8.8.8 8.8.4.4 212.231.6.7
+#FIN_CAMBIO_EUGENIO
+
+# It is possible to fall back to a static IP if DHCP fails:
+# define static profile
+#profile static_eth0
+#static ip_address=192.168.1.23/24
+#static routers=192.168.1.1
+#static domain_name_servers=192.168.1.1
+
+# fallback to static profile on eth0
+#interface eth0
+#fallback static_eth0
+```  
+
+Ver la configuración del DNS:  
+```
+cat /etc/resolv.conf  
+```  
+#### Nota
+Podemos repetir el ciclo de configuración manualmente lanzando estos dos escripts:  
+```
+ifdown wlan0
+ifup wlan0
+```
+Estos escripts se lanzan en el proceso de arranque. Si cambiamos la configuración, podemos desear ejecutar los scripts para ver que la configuración hace lo que debe hacer.  
+### Network Management Client
+Este cliente esta disponible en Ubuntu por defecto, pero debe configurarse en la raspberrypi:    
+```
+apt-get install network-manager
+```  
+Esta utilidad nos permite hacer las operaciones antes descritas de otra forma. Para empezar, podemos ver la lista de conexiones guardadas:  
 ```
 nmcli c  
 ```
@@ -393,54 +598,26 @@ Desconecta una wifi:
 ```
 nmcli con down MASMOVIL_xVfu
 ```  
-### Conectarse a una red (wpa suplicant)  
-Primero instalamos la utilidad:  
-```
-sudo apt install wpasupplicant
-```  
-Esto crea un archivo llamado ``/etc/wpa_supplicant.conf``.  
 
-Para crear la conexion:  
-```
-wpa_passphrase your-ESSID your-passphrase | sudo tee /etc/wpa_supplicant.conf  
+# Curl  
+Cuando invocamos una url protegida con https, podemos evitar la validación del certificado con la opción -k
 
-wpa_passphrase MASMOVIL_xVfu jzkDP26XhjU3 | tee /etc/wpa_supplicant.conf
 ```
-Y finalmente:  
+curl -k https://kubernetes
 ```
-wpa_supplicant -c /etc/wpa_supplicant.conf -i wlp2s0  
-```  
-To run it in the background instead:  
+No obstante, lo mas correcto es validar el certificado. Podemos indicar a curl donde encontrar el certificado de la CA:  
 ```
-wpa_supplicant -B -c /etc/wpa_supplicant.conf -i wlp2s0
-```  
-Finally, once it is installed (we can check it with ``ifconfig``):  
+curl --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes
 ```
-dhclient wlp2s0
-```  
+Para evitar tener que pasar el parametro -cacert en cada ocasión, podemos crear una variable de entorno:  
+```
+export CURL_CA_BUNDLE=/var/run/secrets/kubernetes.io/serviceaccount/ca.crt
 
-## Configurar una conexion de red de forma estatica  
-Ver la configuración del DNS:  
+curl https://kubernetes
 ```
-cat /etc/resolv.conf  
+Usando curl con Autenticación:  
 ```
+TOKEN=$(cat cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 
-El archivo /etc/dhcpcd.conf contiene la información de los interfaces de red:  
+curl -H "Authorization: Bearer $TOKEN" https://kubernetes
 ```
-nano /etc/dhcpcd.conf  
-```  
-Para configurar los interfaces de forma estatica, añadir al final del archivo lo siguiente:
-```
-interface eth0  
-static ip_address=192.168.1.140  
-static routers=192.168.1.1  
-static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
-
-interface wlan0  
-static ip_address=192.168.1.141  
-static routers=192.168.1.1  
-static domain_name_servers=212.231.6.7 8.8.8.8 192.168.1.1 fe80::1%wlan0  
-```  
-En domain_name_servers hemos listado las direcciones de los dns, tal y como las recuperamos de cat /etc/resolv.conf. En ip_address colocamos la direccion estatica que queremos usar. En routers la direccion de nuestro gateway router.  
-
-Cuando se hacen cambios hay que hacer un ``reboot``.  
