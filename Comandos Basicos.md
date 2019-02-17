@@ -368,11 +368,12 @@ Podemos tambien buscar las redes wifi disponibles:
 iw wlp2s0 scan|grep SSID:
 ```  
 ### Conectar  
-Sin encriptar:  
+#### Sin encriptar    
 ```
 iw dev wlan0 connect your_essid
 ```
-Con WEP. La contraseña va en hexadecimal o en ASCII (el formato se identifica automáticamente porque la clave tiene un tamaño fijo):    
+#### WEP  
+La contraseña va en hexadecimal o en ASCII (el formato se identifica automáticamente porque la clave tiene un tamaño fijo):    
 ```
 iw dev wlan0 connect your_essid key 0:your_key
 ```
@@ -380,6 +381,7 @@ Podemos especificar un set de contraseñas. Aqui estariamos informando la tercer
 ```
 iw dev wlan0 connect your_essid key d:2:your_key
 ```
+#### WAP  
 Para WAP no podemos usar iw. Tenemos que utilizar wpa_supplicant.  
 
 ### Conectarse a una red (wpa suplicant)  
@@ -389,7 +391,7 @@ sudo apt install wpasupplicant
 ```  
 Esto crea un archivo llamado ``/etc/wpa_supplicant.conf``.  
 
-Para crear la conexion:  
+En este archivo se especifican la configuración de la red wifi, nombre SSID y contraseña. Podemos guardar esta configuración haciendo:    
 ```
 wpa_passphrase your-ESSID your-passphrase | sudo tee /etc/wpa_supplicant.conf  
 
@@ -397,11 +399,11 @@ wpa_passphrase MASMOVIL_xVfu jzkDP26XhjU3 | tee /etc/wpa_supplicant.conf
 ```
 Los comandos anteriores actualizan el archivo de configuración /etc/wpa_supplicant.conf. Esto mismo es lo que haría en respberrypi la opcion netowrking del raspi-config, cuando seleccionamos wifi e ingresamos un SSID y la contraseña. Por defecto, eso si, el raspi-config guarda la configuración en /etc/wpa_supplicant/wpa_supplicant.conf; Por este motivo en muchos tutoriales, cuando vemos la configuración de /etc/networking/interfaces se hace referencia a ese directiorio de wpa_supplicant.  
 
-Finalmente configuramos la conexión wifi con wpa_supplicant:  
+Finalmente podemos ya conectarnos a la wifi con wpa_supplicant:  
 ```
 wpa_supplicant -c /etc/wpa_supplicant.conf -i wlp2s0  
 ```  
-To run it in the background instead:  
+El mismo comando lo podemos lanzar en background:    
 ```
 wpa_supplicant -B -c /etc/wpa_supplicant.conf -i wlp2s0
 ```
@@ -417,16 +419,19 @@ nl80211 = Linux nl80211/cfg80211
 wired = Wired Ethernet driver
 none = no driver (RADIUS server/WPS ER)
 ```  
-Finally, once it is installed (we can check it with ``ifconfig``), we can ask the dhcp client to issue an ip:  
+Por ultimo, una vez nos hemos conectado, querremos que el servidor de DHCP nos asigne una IP:    
 ```
 dhclient wlp2s0
 ```  
-### Hacer que la configuración se aplique al arrancar    
-Si queremos que al arrancar se establezca la configuración por defecto
+### Hacer que la configuración se aplique automáticamente al arrancar    
+Si queremos que al arrancar se establezca la configuración por defecto, tenemos que indicarlo asi en el archivo de conexiones de red. El archivo lo podemos encontrar en:  
 ```
 nano /etc/network/interfaces
 ```
-Insertamos en el archivo la configuración. En este ejemplo estamos configurando eth0 con una ip estática, la wifi con dhcp y wpa (que hemos definido con el wpa_supplicant).  
+Tenemos que insertar en el archivo la configuración de arranque. En este ejemplo estamos configurando eth0 con una ip estática, la wifi con dhcp y wpa (que hemos definido con el wpa_supplicant).  
+Hay dos formas alternativas de hacerlo:   
+- Opción 1. Usando solo el archivo de configuración /etc/network/interfaces. Esta opción me ha funcionado correctamente en la Raspberry Pi.    
+- Opción 2. Usando el archivo /etc/dhcpcd.conf junto con el /etc/network/interfaces. Esta opción se "supone" que es la adoptada para las ultimas versiones de raspbian, pero no he conseguido que me funcione del todo.  
 
 #### Opcion 1. Usando solo el /etc/network/interfaces  
 En esta opción no vamos a utilizar el /etc/dhcpcd.conf para especificar la dirección estática:  
